@@ -15,9 +15,9 @@ print(df.head(2))
 
 #
 def generate_text(prompt,text):
-    key="sk-tsmMKGg91sz1AOkH49B8882740Fe40Ee9c97262eE043A2E3"
+    key="your key "
     openai.api_key = os.getenv('OPENAI_KEY', key)
-    openai.api_base = "https://ai-yyds.com/v1"
+    openai.api_base = "openai or other llm api"
     messages = [
         {"role": "system", "content": prompt},
         {"role": "user", "content": text},
