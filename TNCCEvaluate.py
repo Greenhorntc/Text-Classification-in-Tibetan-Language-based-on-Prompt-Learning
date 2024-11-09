@@ -5,8 +5,22 @@ from collections import Counter
 from datasets import Dataset
 from sklearn.metrics import recall_score,precision_score,f1_score,classification_report
 
+"""
+There is an example to illustrate the entire calculation process. Given a piece of content: "The tacos in Mexico are delicious...", suppose the dataset has three classification categories: Politics, Life, and Art. The proposed method will generate three sentences as follows:
+index1: "The tacos in Mexico are delicious...; this is a piece of political news."
+index2: "The tacos in Mexico are delicious...; this is a piece of life news."
+index3: "The tacos in Mexico are delicious...; this is a piece of art news."
+The model predicts the probability distribution for each sentence and its corresponding prompt, ranging from [0,1] to indicate the likelihood of an entailment relationship. Assume the output predictions for each sentence are as follows:index1: [0.8, 0.2],index2: [0.2, 0.8],index3: [0.4, 0.6].
+For each individual prompt, the class with the highest confidence is determined as follows:
+Use argmax[] to identify the index of the highest probability in each prediction array.
+For index1, the highest probability index is 0 (indicating Politics).
+For index2, the highest probability index is 1 (indicating Life).
+For index3, the highest probability index is 1 (indicating Art).
+The results thus classify the content under both Lifestyle and Art. If multiple samples are classified as category 1 (i.e., the highest probability corresponds to index 1), the sample with the highest probability for this category is chosen as the true label. Any other samples predicted as category 1 will be reclassified as not being in category 1.If no sample is classified as category 1, the sample with the highest probability is selected and labeled as category 1.
+Given the assumed output, both Life and Art are predicted as entailment categories. However, the probability of 0.8 for Life in index2 exceeds the 0.6 for Art in index3, leading to the final classification as Life. When integrating multiple prompts, methods like averaging or max-min are applied to the probability distribution of each prompt for weighted calculations on this basis.
 
-#0 读取测试集合
+"""
+#0 read testset
 def getTFDataset(config,tokenzier):
     testds = Dataset.load_from_disk(config["testpath"])
     print(testds)
@@ -24,8 +38,8 @@ def getTFDataset(config,tokenzier):
 
 def get_orlabel(labellist):
     labels = list(reversed(labellist))
-    # 因为使用的后缀根据标签添加的，所以每条数据将会产生12条数据
-    # 每次取bathcsize条数据，就能得到原始标签
+    # Since the suffixes are added according to the labels, each piece of data will generate 12 pieces of data.
+    #By taking batchsize pieces of data each time, the original labels can be obtained.
     reallabels = []
     temp = []
     while len(labels) > 0:
@@ -41,34 +55,34 @@ def compare_lable(labellist):
     temp_class_pre= np.argmax(labellist, axis=1)
     temp_pos=[]
     temp_index=[]
-    #标记在这一组预测中，为1的下标和概率
+    #To denote the indices and probabilities corresponding to the label '1' in this set of predictions:
     for i in range(len(labellist)):
         index=np.argmax(labellist[i])
         if index==1:
             temp_index.append(i)
             temp_pos.append(labellist[i][1])
 
-    #判断出现复数个预测为1的概率哪一个更小，然后改变tempclass小的下标为0
+    #To determine which of the multiple predictions for the label '1' has the smaller probability and then change the index of the one with the smaller probability (i.e., the "tempclass") to 0, 
     # print(temp_index)
     # print(temp_pos)
     if len(temp_pos) > 1:
         maxvalue=max(temp_pos)
         idx = temp_pos.index(maxvalue)
         index=temp_index[idx]
-        #获得了最大的下标，那么其他位置的1都要被设置为0
+        #After obtaining the maximum index, all '1's at other positions should be set to '0'.
         for i in range(len(temp_class_pre)):
             if temp_class_pre[i]==1:
                 if i !=index:
                     temp_class_pre[i]=0
 
     elif len(temp_pos)==0:
-        #另外一种情况，在temp中一个1 都没有
+        #Another scenario is when there are no '1's in temp.
         temp_max_1=[]
         for i in  range(len(labellist)):
             temp_max_1.append(labellist[i][1])
         maxtemp=max(temp_max_1)
         maxidx=temp_max_1.index(maxtemp)
-        #获取了最大下标后就将原来的预测labellist指定的下标置为1
+        #After obtaining the maximum index, set the corresponding index in the original prediction labellist to '1'.
         temp_class_pre[maxidx]=1
     else:
         pass
@@ -117,26 +131,26 @@ def getReport(rellabels,pre_label,save):
 
     """
     Precision = precision_score(rellabels, pre_label, average='weighted')
-    print("测试Precision")
+    print("test Precision")
     print(Precision)
     recall = recall_score(rellabels, pre_label, average='weighted')
-    print("测试Recall")
+    print("testRecall")
     print(recall)
     f1 = f1_score(rellabels, pre_label, average='weighted')
-    print("测试F1")
+    print("testF1")
     print(f1)
-    # 返回模型的输出，用于集成学习计算概率。
+   
     labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     print("report")
     print(classification_report(rellabels, pre_label, labels=labels))
     with open(file=save, encoding="UTF-8", mode='w') as f:
-        f.write(str(float(acc)) + "测试ACC ")
+        f.write(str(float(acc)) + "testACC ")
         f.write("\n")
-        f.write(str(float(Precision)) + "测试Precision ")
+        f.write(str(float(Precision)) + "testPrecision ")
         f.write("\n")
-        f.write(str(float(recall)) + " 测试Recall")
+        f.write(str(float(recall)) + " testRecall")
         f.write("\n")
-        f.write(str(float(f1)) + " 测试F1")
+        f.write(str(float(f1)) + " testF1")
         f.write("\n")
         f.close()
 
@@ -146,12 +160,12 @@ def getTarget(predics,rellabels,file):
     # [0,1,2,4,5,6,9]
 
     result = Counter(rellabels)
-    print("统计标签个数")
+    print("Count the number of labels.")
     print(result)
-    print("转换后测试集合的标签")
+    print("The labels of the test set after conversion.")
     print(rellabels)
     pre_label = getpredic_label(predics)
-    print("模型预测的结果")
+    print("Prediction of model")
     print(pre_label)
     getReport(rellabels,pre_label,save=file)
 
@@ -212,9 +226,7 @@ def getNegPos(resultlist):
     return result
 
 def ensamble(prelist,model="avg"):
-    #目前来看测试集合的数据应该是同样的
-
-    #使用了几种提示：
+ 
     if model=="avg":
         pre=AddResultArray(prelist)
         print(pre.shape)
@@ -224,5 +236,5 @@ def ensamble(prelist,model="avg"):
         print(pre.shape)
         return pre
     else:
-        print("输入的什么勾⑧玩意")
+        print("get wrong input")
         pass
