@@ -1,0 +1,80 @@
+C:\ProgramData\Anaconda3\envs\chat\python.exe D:/PythonPro/Ancient_Classic_Ner/LLM/ClsbyLLM.py
+   id                                               text        label
+0   1  ཀྲུང གོའི བོད ཀྱི གསར འགྱུར དྲ བ ཚེས ཉིན གྱི ས...  Environment
+1   2  མཛེས པའི རིག འཛིན དབང མོ ཀྲུང གོའི བོད ལྗོངས ད...  Instruments
+summary_result:
+ Politics
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ ['Politics']
+summary_result:
+ ['Religion']
+summary_result:
+ ['Religion']
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Politics
+summary_result:
+ ['Politics']
+summary_result:
+ Politics
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ ['Politics']
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Politics
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Religion
+summary_result:
+ Politics
+summary_result:
+ Language
+summary_result:
+ Language
+summary_result:
+ Politics
+summary_result:
+ Politics
+summary_result:
+ Politics
+summary_result:
+ Religion
+summary_result:
+ Politics
+
+Process finished with exit code 0
